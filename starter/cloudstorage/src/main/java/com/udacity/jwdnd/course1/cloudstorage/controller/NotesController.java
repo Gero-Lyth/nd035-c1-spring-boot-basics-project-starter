@@ -6,7 +6,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
@@ -18,6 +17,18 @@ public class NotesController {
 
     @PostMapping("/note")
     public String submitNote(Authentication authentication, NoteForm noteForm, RedirectAttributes redirectAttributes){
+        if(noteForm.getNoteTitle().length() > 20){
+            redirectAttributes.addFlashAttribute("message",
+                    "Note Title too long, max length is 20, your submission was " + noteForm.getNoteTitle().length() + ".");
+            redirectAttributes.addFlashAttribute("error",true);
+            return "redirect:/result";
+        }
+        if(noteForm.getNoteDescription().length() > 1000){
+            redirectAttributes.addFlashAttribute("message",
+                    "Note Content too long, max length is 1000, your submission was " + noteForm.getNoteDescription().length() + ".");
+            redirectAttributes.addFlashAttribute("error",true);
+            return "redirect:/result";
+        }
         if(noteForm.getNoteid() == null){
             noteService.saveNote(authentication,noteForm);
             redirectAttributes.addFlashAttribute("message",

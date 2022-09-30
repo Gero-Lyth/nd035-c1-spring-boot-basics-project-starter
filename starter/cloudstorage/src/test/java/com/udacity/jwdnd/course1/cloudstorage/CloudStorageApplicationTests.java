@@ -6,7 +6,6 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -125,11 +124,11 @@ class CloudStorageApplicationTests {
 	 * rest of your code. 
 	 * This test is provided by Udacity to perform some basic sanity testing of 
 	 * your code to ensure that it meets certain rubric criteria. 
-	 * 
+	 * <p>
 	 * If this test is failing, please ensure that you are handling redirecting users 
 	 * back to the login page after a succesful sign up.
 	 * Read more about the requirement in the rubric: 
-	 * https://review.udacity.com/#!/rubrics/2724/view 
+	 * <a href="https://review.udacity.com/#!/rubrics/2724/view">Udacity rubric</a>
 	 */
 	@Test
 	public void testRedirection() {
@@ -145,17 +144,17 @@ class CloudStorageApplicationTests {
 	 * rest of your code. 
 	 * This test is provided by Udacity to perform some basic sanity testing of 
 	 * your code to ensure that it meets certain rubric criteria. 
-	 * 
+	 * <p>
 	 * If this test is failing, please ensure that you are handling bad URLs 
 	 * gracefully, for example with a custom error page.
-	 * 
+	 * <p>
 	 * Read more about custom error pages at: 
-	 * https://attacomsian.com/blog/spring-boot-custom-error-page#displaying-custom-error-page
+	 * <a href="https://attacomsian.com/blog/spring-boot-custom-error-page#displaying-custom-error-page">here</a>
 	 */
 	@Test
 	public void testBadUrl() {
 		// Create a test account
-		doMockSignUp("URL","Test","UT","123");
+		doMockSignUp("URL","Tests","UT","123");
 		doLogIn("UT", "123");
 		
 		// Try to access a random made-up URL.
@@ -169,12 +168,12 @@ class CloudStorageApplicationTests {
 	 * rest of your code. 
 	 * This test is provided by Udacity to perform some basic sanity testing of 
 	 * your code to ensure that it meets certain rubric criteria. 
-	 * 
+	 * <p>
 	 * If this test is failing, please ensure that you are handling uploading large files (>1MB),
 	 * gracefully in your code. 
-	 * 
+	 * <p>
 	 * Read more about file size limits here: 
-	 * https://spring.io/guides/gs/uploading-files/ under the "Tuning File Upload Limits" section.
+	 * <a href="https://spring.io/guides/gs/uploading-files/">spring.io/guides/gs/uploading-files</a> under the "Tuning File Upload Limits" section.
 	 */
 	@Test
 	public void testLargeUpload() {
@@ -208,7 +207,6 @@ class CloudStorageApplicationTests {
 		doMockSignUp("Primary","Test",userName,password);
 		doLogIn(userName, password);
 		driver.get("http://localhost:" + this.port + "/download/-1");
-		System.out.println(driver.getPageSource());
 	}
 	@Test
 	public void testNoteSubmit(){
@@ -270,6 +268,27 @@ class CloudStorageApplicationTests {
 		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("error")));
 		Assertions.assertFalse(driver.getPageSource().contains("hecked"));
 	}
+
+	@Test
+	public void testNoteBeegSubmit(){
+		String userName = "suabmitBeeegNote";
+		String password = "123";
+		// Create a test account
+		doMockSignUp("Primary","Test",userName,password);
+		doLogIn(userName, password);
+		// Try to upload an arbitrary large file
+		WebDriverWait webDriverWait = new WebDriverWait(driver, 9);
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("nav-notes-tab")));
+		WebElement tabButton = driver.findElement(By.id("nav-notes-tab"));
+		tabButton.click();
+		((JavascriptExecutor) driver).executeScript("showNoteModal(null,'heckedsomuchhahahahahahahahahahahahahahahahahaha','dsadasdsd');");
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("note-description")));
+		WebElement desc = driver.findElement(By.id("note-description"));
+		desc.sendKeys("this si the thingsa");
+		desc.submit();
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("error")));
+		Assertions.assertFalse(driver.getPageSource().contains("heckedsomuchhahahahahahahahahahahahahahahahahaha"));
+	}
 	@Test
 	public void testNoteUpdate(){
 		String userName = "Note Updatington";
@@ -306,6 +325,27 @@ class CloudStorageApplicationTests {
 		Assertions.assertTrue(driver.getPageSource().contains("this is a different"));
 	}
 	@Test
+	public void testNoteWrongUpdate(){
+		String userName = "Note Wrongdatington";
+		String password = "123";
+		// Create a test account
+		doMockSignUp("Primary","Test",userName,password);
+		doLogIn(userName, password);
+		// Try to upload an arbitrary large file
+		WebDriverWait webDriverWait = new WebDriverWait(driver, 2);
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("nav-notes-tab")));
+		WebElement tabButton = driver.findElement(By.id("nav-notes-tab"));
+		tabButton.click();
+		((JavascriptExecutor) driver).executeScript("showNoteModal(-3);");
+		WebElement noteTitle = driver.findElement(By.id("note-title"));
+		noteTitle.sendKeys("this is a title");
+		WebElement desc = driver.findElement(By.id("note-description"));
+		desc.sendKeys("this si the thingsa");
+		desc.submit();
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("error")));
+		Assertions.assertTrue(driver.getPageSource().contains("Note with ID -3"));
+	}
+	@Test
 	public void testCredSubmit(){
 		String userName = "Credington McSubmit";
 		String password = "123";
@@ -328,6 +368,28 @@ class CloudStorageApplicationTests {
 		pw.submit();
 		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("success")));
 		Assertions.assertTrue(driver.getPageSource().contains("this is url"));
+	}
+	@Test
+	public void testCredWrongUpdate(){
+		String userName = "Credington Negative";
+		String password = "123";
+		// Create a test account
+		doMockSignUp("Hecker","InDaCode",userName,password);
+		doLogIn(userName, password);
+		WebDriverWait webDriverWait = new WebDriverWait(driver, 2);
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("nav-credentials-tab")));
+		WebElement tabButton = driver.findElement(By.id("nav-credentials-tab"));
+		tabButton.click();
+		((JavascriptExecutor) driver).executeScript("showCredentialModal(-1);");
+		WebElement credurl = driver.findElement(By.id("credential-url"));
+		credurl.sendKeys("this is url");
+		WebElement username = driver.findElement(By.id("credential-username"));
+		username.sendKeys("this si the thingsa");
+		WebElement pw = driver.findElement(By.id("credential-password"));
+		pw.sendKeys("passsss wore");
+		pw.submit();
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("error")));
+		Assertions.assertTrue(driver.getPageSource().contains("Credential ID -1 not found"));
 	}
 	@Test
 	public void testCredUpdate(){

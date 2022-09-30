@@ -13,9 +13,9 @@ import java.util.List;
 
 @Service
 public class CredentialsService {
-    private CredentialsMapper credentialsMapper;
-    private UserMapper userMapper;
-    private EncryptionService encryptionService;
+    private final CredentialsMapper credentialsMapper;
+    private final UserMapper userMapper;
+    private final EncryptionService encryptionService;
     public CredentialsService(CredentialsMapper credentialsMapper, UserMapper userMapper, EncryptionService encryptionService){
         this.credentialsMapper = credentialsMapper;
         this.userMapper = userMapper;
@@ -30,19 +30,24 @@ public class CredentialsService {
         return creds;
     }
 
-    public int saveCredentials(Authentication authentication, CredentialForm credentialForm){
+    /**
+     * Encryption service was faulty, so used information from <a href="https://www.baeldung.com/java-secure-aes-key">here</a> to fix it without modifying EncryptionService.
+     *
+     * @param authentication Authentication of the session
+     * @param credentialForm Credential from the Website
+     */
+    public void saveCredentials(Authentication authentication, CredentialForm credentialForm){
         String key = "";
         try {
             SecureRandom sr = SecureRandom.getInstanceStrong();
             byte[] salt = new byte[128];
             sr.nextBytes(salt);
             key= Base64.getEncoder().encodeToString(salt);
-            System.out.println(key.getBytes().length);
         } catch (Exception e){
-
+            System.err.println(e.getMessage());
         }
         String pw = encryptionService.encryptValue(credentialForm.getPassword(), key);
-        return credentialsMapper.insert(new CredentialModel(null,credentialForm.getUrl(), credentialForm.getUsername(), key, pw, userMapper.getUserID(authentication.getName())));
+        credentialsMapper.insert(new CredentialModel(null, credentialForm.getUrl(), credentialForm.getUsername(), key, pw, userMapper.getUserID(authentication.getName())));
     }
 
     public int deleteCredential(Integer credentialId, Authentication authentication) {
@@ -58,9 +63,9 @@ public class CredentialsService {
     public int updateCredentials(CredentialForm credentialForm, Authentication authentication) {
         CredentialModel credentialModel = credentialsMapper.getCredential(credentialForm.getCredentialId());
         if (credentialModel == null)
-            return -2;
-        if(userMapper.getUserID(authentication.getName()) != credentialModel.getUserid()){
             return -1;
+        if(userMapper.getUserID(authentication.getName()) != credentialModel.getUserid()){
+            return -2;
         }
         String pw = encryptionService.encryptValue(credentialForm.getPassword(), credentialModel.getKey());
         credentialModel.setPassword(pw);

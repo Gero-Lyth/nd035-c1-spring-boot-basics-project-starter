@@ -1,40 +1,31 @@
 package com.udacity.jwdnd.course1.cloudstorage.controller;
 
-import com.udacity.jwdnd.course1.cloudstorage.mapper.UserMapper;
 import com.udacity.jwdnd.course1.cloudstorage.model.FileModel;
 import com.udacity.jwdnd.course1.cloudstorage.services.StorageService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
-import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.util.stream.Collectors;
 
+/**
+ * Code partially attributed to <a href="https://github.com/spring-guides/gs-uploading-files">spring-guides/gs-uploading-files</a>
+ */
 @Controller
 public class FileUploadController {
 
 
     private final StorageService storageService;
 
-    @Autowired
-    public FileUploadController(StorageService storageService, UserMapper userMapper) {
+    public FileUploadController(StorageService storageService) {
         this.storageService = storageService;
     }
-
-
-
-
 
     @GetMapping("/download/{fileId}")
     @ResponseBody
