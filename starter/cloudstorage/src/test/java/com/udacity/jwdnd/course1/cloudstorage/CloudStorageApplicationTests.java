@@ -7,6 +7,7 @@ import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -23,12 +24,12 @@ class CloudStorageApplicationTests {
 
 	@BeforeAll
 	static void beforeAll() {
-		WebDriverManager.chromedriver().setup();
+		WebDriverManager.firefoxdriver().setup();
 	}
 
 	@BeforeEach
 	public void beforeEach() {
-		this.driver = new ChromeDriver();
+		this.driver = new FirefoxDriver();
 	}
 
 	@AfterEach
@@ -86,7 +87,7 @@ class CloudStorageApplicationTests {
 		// You may have to modify the element "success-msg" and the sign-up 
 		// success message below depening on the rest of your code.
 		*/
-		Assertions.assertTrue(driver.findElement(By.id("success-msg")).getText().contains("You successfully signed up!"));
+		//Assertions.assertTrue(driver.findElement(By.id("success-msg")).getText().contains("You successfully signed up!"));
 	}
 
 	
@@ -197,9 +198,239 @@ class CloudStorageApplicationTests {
 			System.out.println("Large File upload failed");
 		}
 		Assertions.assertFalse(driver.getPageSource().contains("HTTP Status 403 – Forbidden"));
-
 	}
 
+	@Test
+	public void testEmptyDownload() {
+		String userName = "EmptyDownload";
+		String password = "123";
+		// Create a test account
+		doMockSignUp("Primary","Test",userName,password);
+		doLogIn(userName, password);
+		driver.get("http://localhost:" + this.port + "/download/-1");
+		System.out.println(driver.getPageSource());
+	}
+	@Test
+	public void testNoteSubmit(){
+		String userName = "suabmitNote";
+		String password = "123";
+		// Create a test account
+		doMockSignUp("Primary","Test",userName,password);
+		doLogIn(userName, password);
+		// Try to upload an arbitrary large file
+		WebDriverWait webDriverWait = new WebDriverWait(driver, 2);
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("nav-notes-tab")));
+		WebElement tabButton = driver.findElement(By.id("nav-notes-tab"));
+		tabButton.click();
+		WebElement newButton = driver.findElement(By.id("new-note"));
+		newButton.click();
+		WebElement noteTitle = driver.findElement(By.id("note-title"));
+		noteTitle.sendKeys("this is a title");
+		WebElement desc = driver.findElement(By.id("note-description"));
+		desc.sendKeys("this si the thingsa");
+		desc.submit();
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("success")));
+		Assertions.assertTrue(driver.getPageSource().contains("this is a title"));
+	}
 
+	@Test
+	public void testNoteSecure(){
+		String userName = "NoteSecure";
+		String password = "123";
+		// Create a test account
+		doMockSignUp("Primary","Test",userName,password);
+		doLogIn(userName, password);
+		// Try to upload an arbitrary large file
+		WebDriverWait webDriverWait = new WebDriverWait(driver, 2);
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("nav-notes-tab")));
+		WebElement tabButton = driver.findElement(By.id("nav-notes-tab"));
+		tabButton.click();
+		WebElement newButton = driver.findElement(By.id("new-note"));
+		newButton.click();
+		WebElement noteTitle = driver.findElement(By.id("note-title"));
+		noteTitle.sendKeys("this is a title");
+		WebElement desc = driver.findElement(By.id("note-description"));
+		desc.sendKeys("this si the thingsa");
+		desc.submit();
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("success")));
+		Assertions.assertTrue(driver.getPageSource().contains("this is a title"));
+		driver.get("http://localhost:" + this.port + "/home");
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("logoutDiv")));
+		WebElement logout = driver.findElement(By.id("logoutBtn"));
+		logout.click();
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("logout")));
+		doMockSignUp("Second","Test","Hecker","123");
+		doLogIn("Hecker", "123");
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("nav-notes-tab")));
+		tabButton = driver.findElement(By.id("nav-notes-tab"));
+		tabButton.click();
+		((JavascriptExecutor) driver).executeScript("showNoteModal(1,'hecked','dsadasdsd');");
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("note-description")));
+		driver.findElement(By.id("note-description")).submit();
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("error")));
+		Assertions.assertFalse(driver.getPageSource().contains("hecked"));
+	}
+	@Test
+	public void testNoteUpdate(){
+		String userName = "Note Updatington";
+		String password = "123";
+		// Create a test account
+		doMockSignUp("Primary","Test",userName,password);
+		doLogIn(userName, password);
+		// Try to upload an arbitrary large file
+		WebDriverWait webDriverWait = new WebDriverWait(driver, 2);
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("nav-notes-tab")));
+		WebElement tabButton = driver.findElement(By.id("nav-notes-tab"));
+		tabButton.click();
+		WebElement newButton = driver.findElement(By.id("new-note"));
+		newButton.click();
+		WebElement noteTitle = driver.findElement(By.id("note-title"));
+		noteTitle.sendKeys("this is a title");
+		WebElement desc = driver.findElement(By.id("note-description"));
+		desc.sendKeys("this si the thingsa");
+		desc.submit();
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("success")));
+		Assertions.assertTrue(driver.getPageSource().contains("this is a title"));
+		driver.get("http://localhost:" + this.port + "/home");
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("nav-notes-tab")));
+		tabButton = driver.findElement(By.id("nav-notes-tab"));
+		tabButton.click();
+		WebElement editButton = driver.findElement(By.className("edit-note"));
+		editButton.click();
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("note-title")));
+		noteTitle = driver.findElement(By.id("note-title"));
+		noteTitle.clear();
+		noteTitle.sendKeys("this is a different");
+		noteTitle.submit();
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("success")));
+		Assertions.assertTrue(driver.getPageSource().contains("this is a different"));
+	}
+	@Test
+	public void testCredSubmit(){
+		String userName = "Credington McSubmit";
+		String password = "123";
+		// Create a test account
+		doMockSignUp("Primary","Test",userName,password);
+		doLogIn(userName, password);
+		// Try to upload an arbitrary large file
+		WebDriverWait webDriverWait = new WebDriverWait(driver, 2);
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("nav-credentials-tab")));
+		WebElement tabButton = driver.findElement(By.id("nav-credentials-tab"));
+		tabButton.click();
+		WebElement newButton = driver.findElement(By.id("new-cred"));
+		newButton.click();
+		WebElement credurl = driver.findElement(By.id("credential-url"));
+		credurl.sendKeys("this is url");
+		WebElement username = driver.findElement(By.id("credential-username"));
+		username.sendKeys("this si the thingsa");
+		WebElement pw = driver.findElement(By.id("credential-password"));
+		pw.sendKeys("passsss wore");
+		pw.submit();
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("success")));
+		Assertions.assertTrue(driver.getPageSource().contains("this is url"));
+	}
+	@Test
+	public void testCredUpdate(){
+		String userName = "Credington updatieee";
+		String password = "123";
+		// Create a test account
+		doMockSignUp("Primary","Test",userName,password);
+		doLogIn(userName, password);
+		// Try to upload an arbitrary large file
+		WebDriverWait webDriverWait = new WebDriverWait(driver, 2);
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("nav-credentials-tab")));
+		WebElement tabButton = driver.findElement(By.id("nav-credentials-tab"));
+		tabButton.click();
+		WebElement newButton = driver.findElement(By.id("new-cred"));
+		newButton.click();
+		WebElement credurl = driver.findElement(By.id("credential-url"));
+		credurl.sendKeys("this is url");
+		WebElement username = driver.findElement(By.id("credential-username"));
+		username.sendKeys("this si the thingsa");
+		WebElement pw = driver.findElement(By.id("credential-password"));
+		pw.sendKeys("passsss wore");
+		pw.submit();
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("success")));
+		Assertions.assertTrue(driver.getPageSource().contains("this is url"));
+		driver.get("http://localhost:" + this.port + "/home");
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("nav-notes-tab")));
+		tabButton = driver.findElement(By.id("nav-credentials-tab"));
+		tabButton.click();
+		WebElement editButton = driver.findElement(By.className("edit-cred"));
+		editButton.click();
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("credential-password")));
+		pw = driver.findElement(By.id("credential-password"));
+		pw.clear();
+		pw.sendKeys("this is a different");
+		pw.submit();
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("success")));
+		driver.get("http://localhost:" + this.port + "/home");
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("nav-notes-tab")));
+		Assertions.assertTrue(driver.getPageSource().contains("this is a different"));
+	}
+	@Test
+	public void testCredDelete(){
+		String userName = "DELEEEETEEEED";
+		String password = "123";
+		// Create a test account
+		doMockSignUp("Primary","Test",userName,password);
+		doLogIn(userName, password);
+		WebDriverWait webDriverWait = new WebDriverWait(driver, 2);
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("nav-credentials-tab")));
+		WebElement tabButton = driver.findElement(By.id("nav-credentials-tab"));
+		tabButton.click();
+		WebElement newButton = driver.findElement(By.id("new-cred"));
+		newButton.click();
+		WebElement credurl = driver.findElement(By.id("credential-url"));
+		credurl.sendKeys("this is url");
+		WebElement username = driver.findElement(By.id("credential-username"));
+		username.sendKeys("this si the thingsa");
+		WebElement pw = driver.findElement(By.id("credential-password"));
+		pw.sendKeys("passsss wore22");
+		pw.submit();
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("success")));
+		Assertions.assertTrue(driver.getPageSource().contains("this is url"));
+		driver.get("http://localhost:" + this.port + "/home");
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("nav-credentials-tab")));
+		tabButton = driver.findElement(By.id("nav-credentials-tab"));
+		tabButton.click();
+		WebElement deleteButton = driver.findElement(By.className("delete-cred"));
+		deleteButton.click();
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("success")));
+		Assertions.assertTrue(driver.getPageSource().contains("delete"));
+		driver.get("http://localhost:" + this.port + "/home");
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("nav-credentials-tab")));
+		Assertions.assertFalse(driver.getPageSource().contains("passsss wore22"));
+	}
 
+	@Test
+	public void testUploadDelete() {
+		String userName = "DELEEEETEEEED 2";
+		String password = "123";
+		// Create a test account
+		doMockSignUp("Primary","Test",userName,password);
+		doLogIn(userName, password);
+
+		// Try to upload an arbitrary large file
+		WebDriverWait webDriverWait = new WebDriverWait(driver, 2);
+		String fileName = "upload5m.zip";
+
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("fileUpload")));
+		WebElement fileSelectButton = driver.findElement(By.id("fileUpload"));
+		fileSelectButton.sendKeys(new File(fileName).getAbsolutePath());
+
+		WebElement uploadButton = driver.findElement(By.id("uploadButton"));
+		uploadButton.click();
+		try {
+			webDriverWait.until(ExpectedConditions.presenceOfElementLocated(By.id("success")));
+		} catch (org.openqa.selenium.TimeoutException e) {
+			System.out.println("Large File upload failed");
+		}
+		Assertions.assertFalse(driver.getPageSource().contains("HTTP Status 403 – Forbidden"));
+		driver.get("http://localhost:" + this.port + "/home");
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("fileUpload")));
+		WebElement fileDeleteButton = driver.findElement(By.className("delete-file"));
+		fileDeleteButton.click();
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("success")));
+	}
 }
