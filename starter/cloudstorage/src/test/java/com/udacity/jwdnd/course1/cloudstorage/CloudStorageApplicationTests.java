@@ -6,7 +6,6 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -155,7 +154,7 @@ class CloudStorageApplicationTests {
 	@Test
 	public void testBadUrl() {
 		// Create a test account
-		doMockSignUp("URL","Test","UT","123");
+		doMockSignUp("URL","Tests","UT","123");
 		doLogIn("UT", "123");
 		
 		// Try to access a random made-up URL.
@@ -269,6 +268,27 @@ class CloudStorageApplicationTests {
 		driver.findElement(By.id("note-description")).submit();
 		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("error")));
 		Assertions.assertFalse(driver.getPageSource().contains("hecked"));
+	}
+
+	@Test
+	public void testNoteBeegSubmit(){
+		String userName = "suabmitBeeegNote";
+		String password = "123";
+		// Create a test account
+		doMockSignUp("Primary","Test",userName,password);
+		doLogIn(userName, password);
+		// Try to upload an arbitrary large file
+		WebDriverWait webDriverWait = new WebDriverWait(driver, 9);
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("nav-notes-tab")));
+		WebElement tabButton = driver.findElement(By.id("nav-notes-tab"));
+		tabButton.click();
+		((JavascriptExecutor) driver).executeScript("showNoteModal(null,'heckedsomuchhahahahahahahahahahahahahahahahahaha','dsadasdsd');");
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("note-description")));
+		WebElement desc = driver.findElement(By.id("note-description"));
+		desc.sendKeys("this si the thingsa");
+		desc.submit();
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("error")));
+		Assertions.assertFalse(driver.getPageSource().contains("heckedsomuchhahahahahahahahahahahahahahahahahaha"));
 	}
 	@Test
 	public void testNoteUpdate(){

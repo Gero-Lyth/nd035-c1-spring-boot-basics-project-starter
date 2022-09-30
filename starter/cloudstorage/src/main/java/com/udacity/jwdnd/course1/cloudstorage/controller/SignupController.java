@@ -30,6 +30,15 @@ public class SignupController {
         if (!userService.isUsernameAvailable(user.getUsername())) {
             signupError = "The username already exists.";
         }
+        if (user.getUsername().length()>20){
+            signupError = "The username is too long.";
+        }
+        if(user.getFirstName().length()>20){
+            signupError = "Your first name is too long. Only use your first name. If that was only your first name, apologies";
+        }
+        if(user.getLastName().length()>20){
+            signupError = "Your last name is too long. Only use your last name. If that was only your last name, apologies";
+        }
 
         if (signupError == null) {
             int rowsAdded = userService.createUser(user);
