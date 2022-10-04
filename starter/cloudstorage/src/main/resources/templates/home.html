@@ -78,8 +78,7 @@
                                     <tr th:each="note : ${notes}">
                                         <td>
                                             <button type="button" class="btn btn-success edit-note"
-                                                    th:attr="onclick=|showNoteModal('${note.noteid}','${note.noteTitle}','${note.noteDescription}')|,
-                                                    id=|edit-note-${note.noteid}|">Edit</button>
+                                                    th:attr="onclick=|showNoteModal('${note.noteid}','${note.noteTitle}','${note.noteDescription}')|">Edit</button>
                                             <a class="btn btn-danger" th:attr="id=|delete-note-${note.noteid}|" th:href="|/delete/note/${note.noteid}|" >Delete</a>
                                         </td>
                                         <th scope="row" th:text="${note.noteTitle}">Example Note Title</th>
@@ -146,7 +145,7 @@
                                     </td>
                                     <th th:text="${cred.url}" scope="row">Example Credential URL</th>
                                     <td th:text="${cred.username}">Example Credential Username</td>
-                                    <td th:text="${cred.password}">Example Credential Password</td>
+                                    <td th:text="${cred.encryptedPassword}">Example Credential Password</td>
                                 </tr>
                                 </tbody>
                             </table>

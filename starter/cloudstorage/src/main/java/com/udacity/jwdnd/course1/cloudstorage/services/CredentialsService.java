@@ -24,7 +24,7 @@ public class CredentialsService {
     public List<CredentialModel> getCredentials(String username){
         List<CredentialModel> creds = credentialsMapper.getUserCredentials(userMapper.getUserID(username));
         creds.forEach((CredentialModel model) -> {
-            System.out.println(model.getCredentialid());
+            model.setEncryptedPassword(model.getPassword());
             model.setPassword(encryptionService.decryptValue(model.getPassword(),model.getKey()));
         });
         return creds;

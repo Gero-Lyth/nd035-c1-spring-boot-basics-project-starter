@@ -7,7 +7,7 @@ public class CredentialModel {
     private String key;
     private String password;
     private Integer userid;
-
+private String encryptedPassword;
     public CredentialModel(Integer credentialid, String url, String username, String key, String password, Integer userid) {
         this.credentialid = credentialid;
         this.url = url;
@@ -55,6 +55,13 @@ public class CredentialModel {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+    public String getEncryptedPassword() {
+        return encryptedPassword;
+    }
+
+    public void setEncryptedPassword(String password) {
+        this.encryptedPassword = password;
     }
 
     public int getUserid() {

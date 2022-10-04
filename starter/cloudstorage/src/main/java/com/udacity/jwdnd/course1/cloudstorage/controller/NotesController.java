@@ -4,6 +4,7 @@ import com.udacity.jwdnd.course1.cloudstorage.model.NoteForm;
 import com.udacity.jwdnd.course1.cloudstorage.services.NoteService;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -54,7 +55,7 @@ public class NotesController {
 
         return "redirect:/result";
     }
-    @PostMapping("/delete/file/{noteId}")
+    @GetMapping("/delete/note/{noteId}")
     public String handleFileDelete(@PathVariable Integer noteId,
                                    Authentication authentication,
                                    RedirectAttributes redirectAttributes) {
